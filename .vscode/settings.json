@@ -1,3 +1,5 @@
 {
-    "python.analysis.typeCheckingMode": "standard"
+    "python.analysis.typeCheckingMode": "standard",
+    "pieces.cloudCapabilities": "Blended",
+    "pieces.telemetry": true
 }

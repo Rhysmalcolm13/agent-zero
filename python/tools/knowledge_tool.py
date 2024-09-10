@@ -10,45 +10,45 @@ from python.helpers.errors import handle_error
 class Knowledge(Tool):
     async def execute(self, question="", **kwargs):
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Schedule the two functions to be run in parallel
+            # Schedule the three functions to be run in parallel
 
             # perplexity search, if API key provided
             if os.getenv("API_KEY_PERPLEXITY"):
-                perplexity = executor.submit(perplexity_search.perplexity_search, question)
+                perplexity_future = executor.submit(perplexity_search.perplexity_search, question)
             else: 
                 PrintStyle.hint("No API key provided for Perplexity. Skipping Perplexity search.")
                 self.agent.context.log.log(type="hint", content="No API key provided for Perplexity. Skipping Perplexity search.")
-                perplexity = None
-                
+                perplexity_future = None
 
             # duckduckgo search
-            duckduckgo = executor.submit(duckduckgo_search.search, question)
+            duckduckgo_future = executor.submit(duckduckgo_search.search, question)
 
             # memory search
-            future_memory = executor.submit(memory_tool.search, self.agent, question)
+            memory_future = executor.submit(memory_tool.search, self.agent, question)
 
-            # Wait for both functions to complete
-            try:
-                perplexity_result = (perplexity.result() if perplexity else "") or ""
-            except Exception as e:
-                handle_error(e)
-                perplexity_result = "Perplexity search failed: " + str(e)
+            # Wait for all functions to complete
+            futures = {
+                "perplexity": perplexity_future,
+                "duckduckgo": duckduckgo_future,
+                "memory": memory_future
+            }
 
-            try:
-                duckduckgo_result = duckduckgo.result()
-            except Exception as e:
-                handle_error(e)
-                duckduckgo_result = "DuckDuckGo search failed: " + str(e)
+            results = {}
+            for key, future in futures.items():
+                if future:
+                    try:
+                        results[key] = future.result()
+                    except Exception as e:
+                        handle_error(e)
+                        results[key] = f"{key.capitalize()} search failed: {str(e)}"
+                else:
+                    results[key] = ""
 
-            try:
-                memory_result = future_memory.result()
-            except Exception as e:
-                handle_error(e)
-                memory_result = "Memory search failed: " + str(e)
-
-        msg = self.agent.read_prompt("tool.knowledge.response.md", 
-                              online_sources = ((perplexity_result + "\n\n") if perplexity else "") + str(duckduckgo_result),
-                              memory = memory_result )
+        msg = self.agent.read_prompt(
+            "tool.knowledge.response.md", 
+            online_sources=((results["perplexity"] + "\n\n") if results["perplexity"] else "") + str(results["duckduckgo"]),
+            memory=results["memory"]
+        )
 
         if self.agent.handle_intervention(msg): pass # wait for intervention and handle it, if paused
 

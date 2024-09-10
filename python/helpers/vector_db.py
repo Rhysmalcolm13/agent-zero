@@ -78,7 +78,7 @@ class VectorDB:
             with open(index_path, 'r') as f:
                 index = json.load(f)
        
-        index = knowledge_import.load_knowledge(self.logger,kn_dir,index)
+        index = knowledge_import.load_knowledge(kn_dir, index)
         
         for file in index:
             if index[file]['state'] in ['changed', 'removed'] and index[file].get('ids',[]): # for knowledge files that have been changed or removed and have IDs
@@ -152,5 +152,3 @@ class VectorDB:
         self.db.add_documents(documents=docs, ids=ids)
         self.db.save_local(folder_path=self.db_dir) #persist
         return ids
-
-
