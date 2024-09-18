@@ -228,3 +228,87 @@ When writing own code, ALWAYS put print/log statements inside and at the end of 
     }
 }
 ~~~
+
+### template_tool:
+Manage templates for various use cases.
+This tool allows you to list, create, use, delete, and edit templates.
+Use the "action" argument to specify the operation you want to perform.
+
+**Example usages:**
+1. List templates:
+~~~json
+{
+    "thoughts": [
+        "I need to see what templates are available...",
+    ],
+    "tool_name": "template_tool",
+    "tool_args": {
+        "action": "list"
+    }
+}
+~~~
+
+2. Create a new template:
+~~~json
+{
+    "thoughts": [
+        "I need to create a new template for...",
+    ],
+    "tool_name": "template_tool",
+    "tool_args": {
+        "action": "create",
+        "name": "New Template",
+        "url": "https://example.com",
+        "navigation_goal": "Navigate to the main page",
+        "data_extraction_goal": "Extract article titles",
+        "advanced_settings": {}
+    }
+}
+~~~
+
+3. Use a template:
+~~~json
+{
+    "thoughts": [
+        "I want to use the template with ID 1...",
+    ],
+    "tool_name": "template_tool",
+    "tool_args": {
+        "action": "use",
+        "template_id": "1"
+    }
+}
+~~~
+
+4. Delete a template:
+~~~json
+{
+    "thoughts": [
+        "I need to delete the template with ID 2...",
+    ],
+    "tool_name": "template_tool",
+    "tool_args": {
+        "action": "delete",
+        "template_id": "2"
+    }
+}
+~~~
+
+5. Edit a template:
+~~~json
+{
+    "thoughts": [
+        "I need to update the template with ID 3...",
+    ],
+    "tool_name": "template_tool",
+    "tool_args": {
+        "action": "edit",
+        "template_id": "3",
+        "name": "Updated Template Name",
+        "url": "https://updated-example.com",
+        "navigation_goal": "Updated navigation goal",
+        "data_extraction_goal": "Updated extraction goal",
+        "advanced_settings": {}
+    }
+}
+~~~

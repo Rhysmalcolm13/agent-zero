@@ -12,7 +12,7 @@ from python.helpers.files import get_abs_path
 from python.helpers.print_style import PrintStyle
 from python.helpers.log import Log
 from dotenv import load_dotenv
-
+from python.helpers.template_manager import Template, load_templates, save_templates, get_next_template_id, delete_template
 
 #initialize the internal Flask server
 app = Flask("app",static_folder=get_abs_path("./webui"),static_url_path="/")
@@ -51,12 +51,6 @@ async def test_form():
 @app.route('/ok', methods=['GET','POST'])
 async def health_check():
     return "OK"
-
-# # secret page, requires authentication
-# @app.route('/secret', methods=['GET'])
-# @requires_auth
-# async def secret_page():
-#     return Path("./secret_page.html").read_text()
 
 # send message to agent (async UI)
 @app.route('/msg', methods=['POST'])
@@ -241,11 +235,83 @@ async def poll():
     #respond with json
     return jsonify(response)
 
+@app.route('/templates', methods=['GET', 'POST'])
+async def handle_templates():
+    if request.method == 'GET':
+        templates = load_templates()
+        return jsonify({"ok": True, "templates": [template.to_dict() for template in templates]})
+    
+    # POST method (save or update template)
+    data = request.get_json()
+    if not data or 'name' not in data:
+        return jsonify({"ok": False, "message": "Invalid template data"}), 400
 
+    templates = load_templates()
+    new_template = Template(
+        id=data.get('id') or get_next_template_id(templates),
+        name=data['name'],
+        url=data.get('url', ''),
+        navigation_goal=data.get('navigation_goal', ''),
+        data_extraction_goal=data.get('data_extraction_goal', ''),
+        advanced_settings=data.get('advanced_settings', {})
+    )
+    
+    if data.get('id'):
+        templates = [new_template if t.id == new_template.id else t for t in templates]
+    else:
+        templates.append(new_template)
+    
+    save_templates(templates)
+    return jsonify({"ok": True, "message": "Template saved successfully", "template": new_template.to_dict()})
+
+@app.route('/use_template', methods=['POST'])
+async def use_template():
+    data = request.get_json()
+    template_id = data['template_id']
+    context_id = data['context']
+
+    templates = load_templates()
+    template = next((t for t in templates if t.id == template_id), None)
+
+    if template:
+        context = get_context(context_id)
+        prompt = f"Execute template: {template.name}\nURL: {template.url}\nNavigation Goal: {template.navigation_goal}\nData Extraction Goal: {template.data_extraction_goal}"
+        if template.advanced_settings:
+            prompt += "\nAdvanced Settings: " + ", ".join(f"{k}: {v}" for k, v in template.advanced_settings.items())
+
+        context.communicate(prompt)
+        return jsonify({"ok": True, "message": "Template applied successfully"})
+    
+    return jsonify({"ok": False, "message": "Template not found"})
+
+@app.route('/delete_template', methods=['POST'])
+async def delete_template_route():
+    data = request.get_json()
+    template_id = data['id']
+    result = delete_template(template_id)
+    return jsonify(result)
+
+@app.route('/edit_template', methods=['POST'])
+async def edit_template():
+    data = request.get_json()
+    template_id = data['id']
+    templates = load_templates()
+    template = next((t for t in templates if t.id == template_id), None)
+
+    if template:
+        template.name = data.get('name', template.name)
+        template.url = data.get('url', template.url)
+        template.navigation_goal = data.get('navigation_goal', template.navigation_goal)
+        template.data_extraction_goal = data.get('data_extraction_goal', template.data_extraction_goal)
+        template.advanced_settings = data.get('advanced_settings', template.advanced_settings)
+
+        save_templates(templates)
+        return jsonify({"ok": True, "message": "Template updated successfully", "template": template.to_dict()})
+
+    return jsonify({"ok": False, "message": "Template not found"})
 
 #run the internal server
 if __name__ == "__main__":
-
     load_dotenv()
     
     # Suppress only request logs but keep the startup messages
@@ -253,7 +319,6 @@ if __name__ == "__main__":
     class NoRequestLoggingWSGIRequestHandler(WSGIRequestHandler):
         def log_request(self, code='-', size='-'):
             pass  # Override to suppress request logging
-
     # run the server on port from .env
     port = int(os.environ.get("WEB_UI_PORT", 0)) or None
     app.run(request_handler=NoRequestLoggingWSGIRequestHandler,port=port)

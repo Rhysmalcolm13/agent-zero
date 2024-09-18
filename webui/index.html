@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent Zero</title>
+    <title>Agent-X</title>
     <link rel="stylesheet" href="index.css">
 
     <script>
@@ -23,7 +23,7 @@
             <!-- <h2>Configuration</h2> -->
 
             <div class="config-section" id="status-section" x-data="{ connected: true }">
-                <h3>Status</h3>
+                <h3>Agent-X Status</h3>
                 <h4 class="connected" x-show="connected">&#10004; Connected</h4>
                 <h4 class="disconnected" x-show="!connected">&#10008; Disconnected</h4>
             </div>
@@ -48,6 +48,18 @@
                         </li>
                     </template>
                 </ul>
+            </div>
+
+            <div class="config-section" id="templates-section">
+                <h3>Templates</h3>
+                <button class="config-button" id="addTemplateBtn">Add New Template</button>
+                <ul class="template-list"></ul>
+            
+                <div class="modal" id="templateModal">
+                    <div class="modal-content">
+                        <!-- Modal content will be dynamically inserted here -->
+                    </div>
+                </div>
             </div>
 
             <div class="config-section">
@@ -89,7 +101,7 @@
 
             </div>
             <div id="input-section" x-data="{ paused: false }">
-                <textarea id="chat-input" placeholder="Type your message here..." rows="1"></textarea>
+                <textarea id="chat-input" placeholder="Talk To Agent-X..." rows="1"></textarea>
                 <button class="chat-button" id="send-button">&#10148;</button>
                 <button class="chat-button pause-button" id="pause-button" @click="pauseAgent(true)"
                     x-show="!paused">&#10074;&#10074;</button>

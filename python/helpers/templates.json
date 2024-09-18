@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "name": "nmap Scan",
+    "url": "192.168.0.1",
+    "navigation_goal": "scan for active ports",
+    "data_extraction_goal": "report on active ports",
+    "advanced_settings": {}
+  },
+  {
+    "id": "2",
+    "name": "webscanning",
+    "url": "thediasporadirectory.com",
+    "navigation_goal": "check subdomains",
+    "data_extraction_goal": "list of subdomains",
+    "advanced_settings": {}
+  },
+  {
+    "id": "3",
+    "name": "gvtscan",
+    "url": "148.163.129.50",
+    "navigation_goal": "scan the A records given and identify the open ports",
+    "data_extraction_goal": "identify open ports for exploits ",
+    "advanced_settings": {}
+  }
+]

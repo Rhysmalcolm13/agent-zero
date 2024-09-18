@@ -1,5 +1,5 @@
 import os
-from python.helpers import perplexity_search
+from python.helpers import tavily_search  # Changed from perplexity_search to tavily_search
 from python.helpers import duckduckgo_search
 from . import memory_tool
 import concurrent.futures
@@ -12,13 +12,13 @@ class Knowledge(Tool):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # Schedule the two functions to be run in parallel
 
-            # perplexity search, if API key provided
-            if os.getenv("API_KEY_PERPLEXITY"):
-                perplexity = executor.submit(perplexity_search.perplexity_search, question)
+            # Tavily search, if API key provided
+            if os.getenv("API_KEY_TAVILY"):  # Updated to check for Tavily API key
+                tavily = executor.submit(tavily_search.tavily_search, question)  # Changed to use tavily_search
             else: 
-                PrintStyle.hint("No API key provided for Perplexity. Skipping Perplexity search.")
-                self.agent.context.log.log(type="hint", content="No API key provided for Perplexity. Skipping Perplexity search.")
-                perplexity = None
+                PrintStyle.hint("No API key provided for Tavily. Skipping Tavily search.")
+                self.agent.context.log.log(type="hint", content="No API key provided for Tavily. Skipping Tavily search.")
+                tavily = None
                 
 
             # duckduckgo search
@@ -29,10 +29,10 @@ class Knowledge(Tool):
 
             # Wait for both functions to complete
             try:
-                perplexity_result = (perplexity.result() if perplexity else "") or ""
+                tavily_result = (tavily.result() if tavily else "") or ""  # Updated to get result from Tavily
             except Exception as e:
                 handle_error(e)
-                perplexity_result = "Perplexity search failed: " + str(e)
+                tavily_result = "Tavily search failed: " + str(e)
 
             try:
                 duckduckgo_result = duckduckgo.result()
@@ -46,8 +46,9 @@ class Knowledge(Tool):
                 handle_error(e)
                 memory_result = "Memory search failed: " + str(e)
 
+        tavily_result_str = str(tavily_result) if tavily else ""
         msg = self.agent.read_prompt("tool.knowledge.response.md", 
-                              online_sources = ((perplexity_result + "\n\n") if perplexity else "") + str(duckduckgo_result),
+                              online_sources = (tavily_result_str + "\n\n") + str(duckduckgo_result),
                               memory = memory_result )
 
         if self.agent.handle_intervention(msg): pass # wait for intervention and handle it, if paused

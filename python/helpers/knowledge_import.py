@@ -5,7 +5,7 @@ import json
 from typing import Any, Dict, Literal, TypedDict
 from langchain_community.document_loaders import (
     CSVLoader, JSONLoader, PyPDFLoader, TextLoader, UnstructuredHTMLLoader, 
-    UnstructuredMarkdownLoader
+    UnstructuredMarkdownLoader, 
 )
 from python.helpers import files
 from python.helpers.log import Log
@@ -35,6 +35,17 @@ def load_knowledge(logger: Log, knowledge_dir: str, index: Dict[str, KnowledgeIm
     # Mapping file extensions to corresponding loader classes
     file_types_loaders = {
         'txt': TextLoader,
+        'js': TextLoader,
+        'jsx': TextLoader,
+        'tsx': TextLoader,
+        'py': TextLoader,
+        'c': TextLoader,
+        'cpp': TextLoader,
+        'go': TextLoader,
+        'java': TextLoader,
+        'rust': TextLoader,
+        'php': TextLoader,
+        'rb': TextLoader,
         'pdf': PyPDFLoader,
         'csv': CSVLoader,
         'html': UnstructuredHTMLLoader,
@@ -57,6 +68,10 @@ def load_knowledge(logger: Log, knowledge_dir: str, index: Dict[str, KnowledgeIm
             checksum = calculate_checksum(file_path)
             file_key = os.path.relpath(file_path, knowledge_dir)
             
+            # Log the file being processed
+            print(f"Processing file: {file_path}")
+            logger.log(type="info", content=f"Processing file: {file_path}")
+            
             # Load existing data from the index or create a new entry
             file_data = index.get(file_key, {})
             
@@ -68,11 +83,12 @@ def load_knowledge(logger: Log, knowledge_dir: str, index: Dict[str, KnowledgeIm
             if file_data['state'] == 'changed':
                 file_data['checksum'] = checksum
                 loader_cls = file_types_loaders[ext]
-                loader = loader_cls(file_path, **(text_loader_kwargs if ext in ['txt', 'csv', 'html', 'md'] else {}))
+                loader = loader_cls(file_path, **(text_loader_kwargs if ext in ['txt', 'csv', 'html', 'md', 'js', 'jsx', 'tsx', 'py', 'c', 'cpp', 'go', 'java', 'rust', 'php', 'rb'] else {}))
                 file_data['documents'] = loader.load_and_split()
                 cnt_files += 1
                 cnt_docs += len(file_data['documents'])
-                # print(f"Imported {len(file_data['documents'])} documents from {file_path}")
+                print(f"Imported {len(file_data['documents'])} documents from {file_path}")
+                logger.log(type="info", content=f"Imported {len(file_data['documents'])} documents from {file_path}")
             
             # Update the index
             index[file_key] = file_data # type: ignore

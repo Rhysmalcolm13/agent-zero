@@ -5,6 +5,8 @@
 
 # Ignore all contents of the virtual environment directory
 .venv/*
+venv/
+/frontend/node_modules/*
 
 # Ignore all contents of the directory "work_dir"
 work_dir/*
@@ -30,3 +32,5 @@ tmp/*
 knowledge/*
 # But do not ignore the directory itself
 !knowledge/.gitkeep
+
+node_modules/

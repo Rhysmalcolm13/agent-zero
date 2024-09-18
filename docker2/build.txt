@@ -1,0 +1,1 @@
+docker build -t dante254/herbie:kali-latest .

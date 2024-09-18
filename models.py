@@ -22,7 +22,7 @@ def get_api_key(service):
 
 
 # Ollama models
-def get_ollama_chat(model_name:str, temperature=DEFAULT_TEMPERATURE, base_url=os.getenv("OLLAMA_BASE_URL")):
+def get_ollama_chat(model_name:str, temperature=DEFAULT_TEMPERATURE, base_url=os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434"):
     return Ollama(model=model_name,temperature=temperature, base_url=base_url)
 
 def get_ollama_embedding(model_name:str, temperature=DEFAULT_TEMPERATURE):
