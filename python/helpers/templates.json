@@ -1,26 +1,130 @@
 [
   {
     "id": "1",
-    "name": "nmap Scan",
-    "url": "192.168.0.1",
-    "navigation_goal": "scan for active ports",
-    "data_extraction_goal": "report on active ports",
-    "advanced_settings": {}
+    "name": "Code Analysis",
+    "url": "agent-zero/test.py",
+    "navigation_goal": "analyze the mentioned file or folder for various metrics.\n\ncommands:\ncoverage run\ncoverage report -m\nradon cc",
+    "data_extraction_goal": "provide insights and reports based on the analysis in JSON format.",
+    "advanced_settings": {
+      "metrics": [
+        "complexity",
+        "coverage",
+        "style"
+      ],
+      "output_format": "JSON"
+    }
   },
   {
     "id": "2",
-    "name": "webscanning",
-    "url": "thediasporadirectory.com",
-    "navigation_goal": "check subdomains",
-    "data_extraction_goal": "list of subdomains",
-    "advanced_settings": {}
+    "name": "Dependency Management",
+    "url": "https://github.com/Rhysmalcolm13/agent-zero",
+    "navigation_goal": "locally clone, then manage and update project dependencies",
+    "data_extraction_goal": "report on outdated or vulnerable dependencies",
+    "advanced_settings": {
+      "auto_update": true,
+      "vulnerability_scan": true
+    }
   },
   {
     "id": "3",
-    "name": "gvtscan",
-    "url": "148.163.129.50",
-    "navigation_goal": "scan the A records given and identify the open ports",
-    "data_extraction_goal": "identify open ports for exploits ",
-    "advanced_settings": {}
+    "name": "Test Automation",
+    "url": "",
+    "navigation_goal": "automate the creation and execution of tests",
+    "data_extraction_goal": "generate test reports and coverage statistics",
+    "advanced_settings": {
+      "test_framework": "any",
+      "coverage_threshold": 70
+    }
+  },
+  {
+    "id": "4",
+    "name": "Documentation Generator",
+    "url": "agent-zero\\agent.py",
+    "navigation_goal": "automate the generation of project documentation for the mentioned file or folder",
+    "data_extraction_goal": "produce up-to-date and comprehensive docs",
+    "advanced_settings": {
+      "format": "Markdown",
+      "include_examples": true
+    }
+  },
+  {
+    "id": "5",
+    "name": "CI/CD Pipeline",
+    "url": "agent-zero/",
+    "navigation_goal": "set up continuous integration and deployment pipelines",
+    "data_extraction_goal": "configure automated build and deployment processes",
+    "advanced_settings": {
+      "ci_tool": "any",
+      "deployment_targets": [
+        "staging",
+        "production"
+      ]
+    }
+  },
+  {
+    "id": "6",
+    "name": "Security Audit",
+    "url": "",
+    "navigation_goal": "perform security assessments on the codebase",
+    "data_extraction_goal": "identify and report potential security issues",
+    "advanced_settings": {
+      "scan_depth": "deep",
+      "report_format": "detailed"
+    }
+  },
+  {
+    "id": "7",
+    "name": "Performance Monitoring",
+    "url": "",
+    "navigation_goal": "monitor and analyze application performance",
+    "data_extraction_goal": "provide performance metrics and optimization suggestions",
+    "advanced_settings": {
+      "metrics": [
+        "response_time",
+        "throughput"
+      ],
+      "alerting": true
+    }
+  },
+  {
+    "id": "8",
+    "name": "Code Review Assistant",
+    "url": "",
+    "navigation_goal": "assist in the code review process",
+    "data_extraction_goal": "highlight potential issues and suggest improvements",
+    "advanced_settings": {
+      "review_depth": "comprehensive",
+      "integration": [
+        "GitHub",
+        "GitLab"
+      ]
+    }
+  },
+  {
+    "id": "9",
+    "name": "Environment Setup",
+    "url": "",
+    "navigation_goal": "automate the setup of development environments",
+    "data_extraction_goal": "ensure consistency and reproducibility across setups",
+    "advanced_settings": {
+      "containerization": true,
+      "scripts": [
+        "setup.sh",
+        "configure.yml"
+      ]
+    }
+  },
+  {
+    "id": "10",
+    "name": "Codebase Refactoring",
+    "url": "",
+    "navigation_goal": "refactor the codebase for better maintainability",
+    "data_extraction_goal": "identify areas for improvement and apply changes",
+    "advanced_settings": {
+      "refactor_rules": [
+        "any"
+      ],
+      "backup_before": true
+    }
   }
 ]

@@ -230,9 +230,21 @@ When writing own code, ALWAYS put print/log statements inside and at the end of 
 ~~~
 
 ### template_tool:
+WARNING: Avoid creating duplicate templates!
+Always use the "list" action first to check if the template exists.
+If it exists, use the "edit" action to modify it and save your changes.
+DO NOT CREATE DUPLICATE TEMPLATES.
+REUSE EXISTING TEMPLATES WHEN POSSIBLE.
+
+Available actions:
+- "list": List all templates
+- "create": Create a new template
+- "use": Use an existing template
+- "delete": Delete a template
+- "edit": Edit a template
+
 Manage templates for various use cases.
-This tool allows you to list, create, use, delete, and edit templates.
-Use the "action" argument to specify the operation you want to perform.
+Specify the operation using the "action" argument.
 
 **Example usages:**
 1. List templates:

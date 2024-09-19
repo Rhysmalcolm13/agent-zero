@@ -94,8 +94,8 @@ class AgentConfig:
     msgs_keep_max: int = 25
     msgs_keep_start: int = 5
     msgs_keep_end: int = 10
-    response_timeout_seconds: int = 60
-    max_tool_response_length: int = 3000
+    response_timeout_seconds: int = 160
+    max_tool_response_length: int = 6000
     code_exec_docker_enabled: bool = True
     code_exec_docker_name: str = "agent-zero-exe"
     code_exec_docker_image: str = "frdel/agent-zero-exe:latest"
