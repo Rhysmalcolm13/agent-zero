@@ -1,130 +1,87 @@
 [
   {
     "id": "1",
-    "name": "Code Analysis",
-    "url": "agent-zero/test.py",
-    "navigation_goal": "analyze the mentioned file or folder for various metrics.\n\ncommands:\ncoverage run\ncoverage report -m\nradon cc",
-    "data_extraction_goal": "provide insights and reports based on the analysis in JSON format.",
+    "name": "Basic Web Page Test",
+    "url": "https://example.com",
+    "navigation_goal": "Load the homepage",
+    "data_extraction_goal": "Extract the page title and main heading",
     "advanced_settings": {
-      "metrics": [
-        "complexity",
-        "coverage",
-        "style"
-      ],
-      "output_format": "JSON"
+      "wait_for_selector": "h1"
     }
   },
   {
-    "id": "2",
-    "name": "Dependency Management",
-    "url": "https://github.com/Rhysmalcolm13/agent-zero",
-    "navigation_goal": "locally clone, then manage and update project dependencies",
-    "data_extraction_goal": "report on outdated or vulnerable dependencies",
+    "id": "2", 
+    "name": "Simple Search Test",
+    "url": "https://www.google.com",
+    "navigation_goal": "Perform a search for 'artificial intelligence'",
+    "data_extraction_goal": "Extract the first search result title and URL",
     "advanced_settings": {
-      "auto_update": true,
-      "vulnerability_scan": true
+      "search_input_selector": "input[name='q']",
+      "search_button_selector": "input[name='btnK']"
     }
   },
   {
     "id": "3",
-    "name": "Test Automation",
-    "url": "",
-    "navigation_goal": "automate the creation and execution of tests",
-    "data_extraction_goal": "generate test reports and coverage statistics",
+    "name": "Basic Form Submission",
+    "url": "https://httpbin.org/forms/post",
+    "navigation_goal": "Fill out and submit the simple form",
+    "data_extraction_goal": "Verify successful form submission",
     "advanced_settings": {
-      "test_framework": "any",
-      "coverage_threshold": 70
+      "form_data": {
+        "custname": "Test User",
+        "custtel": "1234567890",
+        "custemail": "test@example.com",
+        "size": "medium",
+        "topping": "bacon",
+        "delivery": "12:00"
+      }
     }
   },
   {
     "id": "4",
-    "name": "Documentation Generator",
-    "url": "agent-zero\\agent.py",
-    "navigation_goal": "automate the generation of project documentation for the mentioned file or folder",
-    "data_extraction_goal": "produce up-to-date and comprehensive docs",
+    "name": "Navigation Menu Test",
+    "url": "https://www.wikipedia.org",
+    "navigation_goal": "Click on the 'English' language option",
+    "data_extraction_goal": "Confirm navigation to English Wikipedia homepage",
     "advanced_settings": {
-      "format": "Markdown",
-      "include_examples": true
+      "click_selector": "a#js-link-box-en"
     }
   },
   {
     "id": "5",
-    "name": "CI/CD Pipeline",
-    "url": "agent-zero/",
-    "navigation_goal": "set up continuous integration and deployment pipelines",
-    "data_extraction_goal": "configure automated build and deployment processes",
+    "name": "Image Count Test",
+    "url": "https://unsplash.com",
+    "navigation_goal": "Scroll down the homepage",
+    "data_extraction_goal": "Count the number of images loaded",
     "advanced_settings": {
-      "ci_tool": "any",
-      "deployment_targets": [
-        "staging",
-        "production"
-      ]
+      "scroll_behavior": "smooth",
+      "scroll_amount": 1000,
+      "image_selector": "img.YVj9w"
     }
   },
   {
     "id": "6",
-    "name": "Security Audit",
-    "url": "",
-    "navigation_goal": "perform security assessments on the codebase",
-    "data_extraction_goal": "identify and report potential security issues",
+    "name": "Cookie Consent Test",
+    "url": "https://www.bbc.com",
+    "navigation_goal": "Accept cookie consent if present",
+    "data_extraction_goal": "Verify cookie consent banner is no longer visible",
     "advanced_settings": {
-      "scan_depth": "deep",
-      "report_format": "detailed"
+      "consent_button_selector": "button#bbccookies-continue-button",
+      "banner_selector": "div#bbccookies"
     }
   },
   {
     "id": "7",
-    "name": "Performance Monitoring",
-    "url": "",
-    "navigation_goal": "monitor and analyze application performance",
-    "data_extraction_goal": "provide performance metrics and optimization suggestions",
+    "name": "Responsive Design Test",
+    "url": "https://www.github.com",
+    "navigation_goal": "Resize browser window to mobile dimensions",
+    "data_extraction_goal": "Verify mobile menu icon is visible",
     "advanced_settings": {
-      "metrics": [
-        "response_time",
-        "throughput"
-      ],
-      "alerting": true
-    }
-  },
-  {
-    "id": "8",
-    "name": "Code Review Assistant",
-    "url": "",
-    "navigation_goal": "assist in the code review process",
-    "data_extraction_goal": "highlight potential issues and suggest improvements",
-    "advanced_settings": {
-      "review_depth": "comprehensive",
-      "integration": [
-        "GitHub",
-        "GitLab"
-      ]
-    }
-  },
-  {
-    "id": "9",
-    "name": "Environment Setup",
-    "url": "",
-    "navigation_goal": "automate the setup of development environments",
-    "data_extraction_goal": "ensure consistency and reproducibility across setups",
-    "advanced_settings": {
-      "containerization": true,
-      "scripts": [
-        "setup.sh",
-        "configure.yml"
-      ]
-    }
-  },
-  {
-    "id": "10",
-    "name": "Codebase Refactoring",
-    "url": "",
-    "navigation_goal": "refactor the codebase for better maintainability",
-    "data_extraction_goal": "identify areas for improvement and apply changes",
-    "advanced_settings": {
-      "refactor_rules": [
-        "any"
-      ],
-      "backup_before": true
+      "viewport": {
+        "width": 375,
+        "height": 667
+      },
+      "mobile_menu_selector": "button[aria-label='Toggle navigation']"
     }
   }
 ]
