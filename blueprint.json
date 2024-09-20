@@ -1,0 +1,199 @@
+{
+  "version": "1.1",
+  "name": "Multi-Agent Task Orchestration Blueprint",
+  "description": "A comprehensive template for orchestrating complex tasks across multiple agents",
+  "task_definition": {
+    "main_task": "",
+    "goal": "",
+    "subtasks": [],
+    "parameters": {
+      "dynamic_inputs": [],
+      "static_inputs": {}
+    },
+    "expected_output": {
+      "format": "",
+      "schema": {}
+    }
+  },
+  "delegation": {
+    "subtask_assignment": [],
+    "agent_selection_criteria": {
+      "role_based": {
+        "coder": ["code_analysis", "code_generation"],
+        "researcher": ["data_collection", "analysis"],
+        "writer": ["content_creation", "editing"]
+      },
+      "skill_based": {
+        "language_proficiency": ["python", "javascript", "rust"],
+        "domain_expertise": ["machine_learning", "web_development", "data_science"]
+      },
+      "load_balancing": "round_robin"
+    }
+  },
+  "error_handling": {
+    "retry_attempts": 3,
+    "error_reporting": {
+      "log_errors": true,
+      "escalation_threshold": "critical"
+    },
+    "fallback_strategies": {
+      "task_simplification": true,
+      "alternative_method": true
+    },
+    "error_types": {
+      "timeout": {
+        "action": "retry",
+        "max_retries": 2
+      },
+      "resource_unavailable": {
+        "action": "wait_and_retry",
+        "wait_time": 300
+      },
+      "invalid_input": {
+        "action": "human_intervention"
+      }
+    }
+  },
+  "workflow": {
+    "steps": [
+      {
+        "name": "initialize_task",
+        "instruction": "Initialize the main task and gather necessary resources."
+      },
+      {
+        "name": "search_memories",
+        "instruction": "Use knowledge_tool to search in memory for relevant information."
+      },
+      {
+        "name": "search_online",
+        "instruction": "Use knowledge_tool to search online sources."
+      },
+      {
+        "name": "generate_subtasks",
+        "instruction": "Break down the task into manageable subtasks."
+      },
+      {
+        "name": "delegate_subtasks",
+        "instruction": "Delegate each subtask to the appropriate subordinate agent based on roles."
+      },
+      {
+        "name": "aggregate_results",
+        "instruction": "Collect and aggregate results from all subordinate agents."
+      },
+      {
+        "name": "verify_and_finalize",
+        "instruction": "Verify the results using available tools and provide the final response to the user."
+      }
+    ],
+    "conditional_branches": [],
+    "loops": [],
+    "result_aggregation": {
+      "method": "combine",
+      "output_format": "json"
+    }
+  },
+  "tools": {
+    "available_tools": [
+      "call_subordinate",
+      "response",
+      "knowledge_tool",
+      "memory_tool",
+      "code_execution_tool",
+      "webpage_content_tool"
+    ],
+    "tool_selection_strategy": "dynamic",
+    "tool_integration": {
+      "call_subordinate": {
+        "input_format": "json",
+        "output_handling": "parse_and_process"
+      },
+      "knowledge_tool": {
+        "source": "vector_db",
+        "query_method": "semantic_search"
+      }
+    }
+  },
+  "agent_management": {
+    "superior_agent": {
+      "role": "orchestrator",
+      "responsibilities": [
+        "task_decomposition",
+        "subtask_delegation",
+        "result_aggregation",
+        "error_management"
+      ]
+    },
+    "subordinate_agents": {
+      "roles": ["coder", "researcher", "writer"],
+      "task_assignment": "dynamic",
+      "autonomy_level": "high"
+    }
+  },
+  "communication": {
+    "format": "json",
+    "channels": {
+      "superior_to_subordinate": {
+        "message_types": ["task_assignment", "status_inquiry", "error_resolution"]
+      },
+      "subordinate_to_superior": {
+        "message_types": ["task_completion", "status_update", "error_report"]
+      },
+      "inter_agent": {
+        "enabled": true,
+        "protocols": ["request_information", "share_results"]
+      }
+    },
+    "standardized_responses": {
+      "task_completed": {"status": "success", "result": {}},
+      "task_failed": {"status": "error", "error_type": "", "message": ""}
+    }
+  },
+  "multi_agent_collaboration": {
+    "parallel_execution": true,
+    "result_synchronization": {
+      "method": "webhook",
+      "interval": "on_completion"
+    },
+    "shared_memory": {
+      "enabled": true,
+      "scope": "task_specific"
+    },
+    "conflict_resolution": {
+      "strategy": "superior_agent_decision"
+    }
+  },
+  "template_management": {
+    "versioning": {
+      "major": 1,
+      "minor": 1,
+      "patch": 0
+    },
+    "update_mechanism": {
+      "trigger": "scheduled",
+      "frequency": "weekly"
+    },
+    "template_storage": {
+      "location": "database",
+      "backup_frequency": "daily"
+    }
+  },
+  "performance_optimization": {
+    "caching": {
+      "enabled": true,
+      "cache_duration": 3600
+    },
+    "resource_allocation": {
+      "cpu_limit": 4,
+      "memory_limit": "8G"
+    },
+    "monitoring": {
+      "metrics": ["task_completion_time", "error_rate", "resource_usage"],
+      "alerting": {
+        "threshold": {
+          "task_completion_time": 300,
+          "error_rate": 0.1
+        }
+      }
+    }
+  }
+}

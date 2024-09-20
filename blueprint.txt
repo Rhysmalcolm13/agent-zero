@@ -1,0 +1,105 @@
+Here’s an analysis of the two files you requested, **`call_subordinate.py`** and **`agent.system.md`**, in the context of your AI agent system:
+
+---
+
+### 1. **`call_subordinate.py`**
+
+This file defines the **Delegation Tool** (`Delegation` class), which allows an agent to delegate part of a task to a **subordinate agent**. Here's a breakdown of its functionality:
+
+#### Key Points:
+- **Subordinate Creation**:
+  - If a subordinate agent doesn’t exist or if the `reset` argument is set to `true`, a new subordinate agent is created.
+  - The subordinate agent is initialized with an incremented agent number and the same configuration and context as the main agent.
+  - The **superior agent** (the one making the request) is stored in the subordinate's data, and vice versa.
+
+- **Message Loop**:
+  - The subordinate agent enters a **message loop**, where it processes the instructions from the superior agent (provided through the `message` argument). 
+  - The loop ensures that the subordinate agent performs its task based on the message received and communicates back.
+
+- **Communication**:
+  - This setup allows for a **hierarchical delegation** system where tasks can be split into subtasks. Each subtask is assigned to subordinate agents, and their progress is communicated back to the superior agent.
+
+#### Code:
+```python
+from agent import Agent
+from python.helpers.tool import Tool, Response
+
+class Delegation(Tool):
+
+    async def execute(self, message="", reset="", **kwargs):
+        # Create subordinate agent if not exists or reset flag is true
+        if self.agent.get_data("subordinate") is None or str(reset).lower().strip() == "true":
+            subordinate = Agent(self.agent.number + 1, self.agent.config, self.agent.context)
+            subordinate.set_data("superior", self.agent)
+            self.agent.set_data("subordinate", subordinate) 
+        
+        # Run subordinate agent message loop
+        return Response(message=await self.agent.get_data("subordinate").message_loop(message), break_loop=False)
+```
+
+#### Use Case for Delegation:
+- **Task Subdivision**: This tool allows complex tasks to be broken down into subtasks, where specific roles (scientist, coder, etc.) can be delegated to a subordinate. This makes the agent capable of managing **multi-agent collaboration** and **task orchestration**.
+- **Parallel Task Execution**: If needed, multiple subordinate agents can work on different parts of a task, allowing for more efficient task execution.
+- **Autonomous Subordinate**: Each subordinate operates autonomously but reports back to the superior agent, ensuring centralized control over task progress.
+
+---
+
+### 2. **`agent.system.md`**
+
+The `agent.system.md` file outlines the **operational rules** for the AI agent, serving as a **role definition** and **instruction manual**. It defines how the agent should approach tasks, communicate, and delegate subtasks.
+
+#### Key Sections:
+
+1. **Agent's Role**:
+   - The agent is described as an **autonomous task-solving system** that uses its tools and subordinates to get things done. The agent is instructed to **focus on execution**, not merely discussing potential solutions.
+   - **Execution-Focused**: The agent should not just inform the user about what it plans to do, but instead should actually execute the tasks and report back with results.
+
+2. **Communication Structure**:
+   - The agent’s response is structured as a **JSON object**, with clear fields for thoughts, tool names, and tool arguments.
+   - This JSON structure is meant to ensure that the agent’s thoughts and actions are well-organized, methodical, and transparent.
+
+   **Example Response**:
+   ```json
+   {
+       "thoughts": [
+           "The user has requested extracting a zip file downloaded yesterday.",
+           "Steps to solution are...",
+           "I will process step by step...",
+           "Analysis of step..."
+       ],
+       "tool_name": "zip_extractor",
+       "tool_args": {
+           "file_path": "/downloads/yesterday.zip"
+       }
+   }
+   ```
+
+3. **Problem-Solving Framework**:
+   - The agent is expected to use a **step-by-step problem-solving approach**, constantly updating its thought process and moving toward a solution.
+   - **Error Handling**: If the agent encounters a failure (e.g., a tool fails to execute), it should search for a solution and retry with a corrected input. It is not allowed to assume success until it checks the result.
+
+4. **Delegation and Cooperation**:
+   - The document reinforces that agents can have roles (e.g., scientist, coder) and may delegate subtasks to **subordinate agents** using the `call_subordinate` tool.
+   - **Detailed Instructions for Subordinates**: When delegating tasks, the agent must provide clear, descriptive instructions, including a high-level overview of the goal and necessary details.
+   - **Communication with Subordinates**: The agent communicates with subordinates using the `call_subordinate` tool and receives updates through **back-and-forth communication**.
+
+5. **Operational Guidelines**:
+   - The agent should rely on **Python/NodeJS/Linux libraries** to execute tasks using its tools, and it is required to focus on code-based solutions.
+   - The agent should avoid **repetition** and continuously check prior messages to ensure that it doesn’t duplicate actions or thoughts.
+   - **Step-by-step Reasoning**: The agent is required to present its **thoughts** in a structured manner and **never assume success** without verification.
+   - **Memory Management**: The agent can store helpful information into its memory using tools like `memorize`, but it should always verify results using its available tools and resources.
+
+#### How This Relates to the Overall System:
+- **Autonomy and Execution**: The agent is designed to be fully autonomous, with an emphasis on task execution and tool usage.
+- **Hierarchical Task Management**: By introducing the concept of subordinate agents, the system becomes scalable. Complex tasks can be broken down into smaller, manageable subtasks, allowing for **distributed task execution** across multiple agents.
+- **Clear and Transparent Communication**: The use of structured JSON for responses ensures transparency and methodical problem-solving, allowing the user (or superior agent) to understand the agent’s reasoning and actions at all times.
+
+---
+
+### Conclusion: Combining `call_subordinate.py` and `agent.system.md` in the Template Framework
+
+- **Delegation as a Core Feature**: The `call_subordinate` tool aligns perfectly with the vision of using **templates** as action frameworks. You can use the delegation system to split large tasks into smaller, predefined subtasks that can be handled by subordinate agents. For example, a template for a large research task could include sections that delegate parts of the research to different subordinate agents (one focusing on scientific papers, another on news articles).
+  
+- **Centralized Task Management**: The superior agent retains control over the overall workflow by interacting with subordinates, ensuring that subtasks are completed while focusing on the **big picture**. This fits with the `agent.system.md` instructions that emphasize careful planning, execution, and verification.
+
+- **Sophisticated Task Execution**: Combining the delegation system with the template system enables the agent to handle **multi-step workflows** efficiently, allowing for complex tasks that involve multiple roles (e.g., coders, researchers) to be executed in parallel or sequentially, based on predefined templates.

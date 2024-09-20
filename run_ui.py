@@ -205,7 +205,7 @@ async def poll():
 
         # loop AgentContext._contexts
         ctxs = []
-        for ctx in AgentContext._contexts.values():
+        for ctx in AgentContext.contexts.values():
             ctxs.append({
                 "id": ctx.id,
                 "no": ctx.no,

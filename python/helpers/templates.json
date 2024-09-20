@@ -1,87 +1,68 @@
 [
   {
     "id": "1",
-    "name": "Basic Web Page Test",
-    "url": "https://example.com",
-    "navigation_goal": "Load the homepage",
-    "data_extraction_goal": "Extract the page title and main heading",
-    "advanced_settings": {
-      "wait_for_selector": "h1"
-    }
+    "name": "Initialize Task",
+    "url": "",
+    "navigation_goal": "Set up the main task environment.",
+    "data_extraction_goal": "Gather necessary resources and initial data.",
+    "advanced_settings": {}
   },
   {
-    "id": "2", 
-    "name": "Simple Search Test",
-    "url": "https://www.google.com",
-    "navigation_goal": "Perform a search for 'artificial intelligence'",
-    "data_extraction_goal": "Extract the first search result title and URL",
-    "advanced_settings": {
-      "search_input_selector": "input[name='q']",
-      "search_button_selector": "input[name='btnK']"
-    }
+    "id": "2",
+    "name": "Search Memories",
+    "url": "",
+    "navigation_goal": "Retrieve relevant information from memory.",
+    "data_extraction_goal": "Use knowledge_tool to fetch relevant memories.",
+    "advanced_settings": {}
   },
   {
     "id": "3",
-    "name": "Basic Form Submission",
-    "url": "https://httpbin.org/forms/post",
-    "navigation_goal": "Fill out and submit the simple form",
-    "data_extraction_goal": "Verify successful form submission",
-    "advanced_settings": {
-      "form_data": {
-        "custname": "Test User",
-        "custtel": "1234567890",
-        "custemail": "test@example.com",
-        "size": "medium",
-        "topping": "bacon",
-        "delivery": "12:00"
-      }
-    }
+    "name": "Search Online",
+    "url": "",
+    "navigation_goal": "Gather information from online sources.",
+    "data_extraction_goal": "Use knowledge_tool to perform online searches.",
+    "advanced_settings": {}
   },
   {
     "id": "4",
-    "name": "Navigation Menu Test",
-    "url": "https://www.wikipedia.org",
-    "navigation_goal": "Click on the 'English' language option",
-    "data_extraction_goal": "Confirm navigation to English Wikipedia homepage",
-    "advanced_settings": {
-      "click_selector": "a#js-link-box-en"
-    }
+    "name": "Generate Subtasks",
+    "url": "",
+    "navigation_goal": "Break down the main task into smaller subtasks.",
+    "data_extraction_goal": "Analyze the main task to create manageable subtasks.",
+    "advanced_settings": {}
   },
   {
     "id": "5",
-    "name": "Image Count Test",
-    "url": "https://unsplash.com",
-    "navigation_goal": "Scroll down the homepage",
-    "data_extraction_goal": "Count the number of images loaded",
-    "advanced_settings": {
-      "scroll_behavior": "smooth",
-      "scroll_amount": 1000,
-      "image_selector": "img.YVj9w"
-    }
+    "name": "Delegate Subtasks",
+    "url": "",
+    "navigation_goal": "Assign subtasks to appropriate agents.",
+    "data_extraction_goal": "Use call_subordinate tool to delegate tasks based on roles.",
+    "advanced_settings": {}
   },
   {
     "id": "6",
-    "name": "Cookie Consent Test",
-    "url": "https://www.bbc.com",
-    "navigation_goal": "Accept cookie consent if present",
-    "data_extraction_goal": "Verify cookie consent banner is no longer visible",
-    "advanced_settings": {
-      "consent_button_selector": "button#bbccookies-continue-button",
-      "banner_selector": "div#bbccookies"
-    }
+    "name": "Aggregate Results",
+    "url": "",
+    "navigation_goal": "Combine results from all subordinate agents.",
+    "data_extraction_goal": "Collect and merge outputs from delegated subtasks.",
+    "advanced_settings": {}
   },
   {
     "id": "7",
-    "name": "Responsive Design Test",
-    "url": "https://www.github.com",
-    "navigation_goal": "Resize browser window to mobile dimensions",
-    "data_extraction_goal": "Verify mobile menu icon is visible",
+    "name": "Verify and Finalize",
+    "url": "",
+    "navigation_goal": "Ensure the accuracy of results and complete the task.",
+    "data_extraction_goal": "Use available tools to verify results and provide final response.",
+    "advanced_settings": {}
+  },
+  {
+    "id": "8",
+    "name": "PDF Downloader Tool",
+    "url": "https://example.com/pdf-downloader",
+    "navigation_goal": "Download PDF files from specified URLs.",
+    "data_extraction_goal": "Utilize the requests library to download and save PDF files.",
     "advanced_settings": {
-      "viewport": {
-        "width": 375,
-        "height": 667
-      },
-      "mobile_menu_selector": "button[aria-label='Toggle navigation']"
+      "code": "import requests\n\n# List of research paper URLs\nurls = [\n    'https://arxiv.org/pdf/2401.03568.pdf',\n    'https://arxiv.org/pdf/2408.08435.pdf',\n    'https://arxiv.org/pdf/2407.01502.pdf',\n    'https://arxiv.org/pdf/2402.05929.pdf',\n    'https://arxiv.org/pdf/2409.03215.pdf',\n    'https://arxiv.org/pdf/2404.11584.pdf',\n    'https://arxiv.org/pdf/2407.01502.pdf',\n    'https://arxiv.org/pdf/2409.10568.pdf',\n    'https://ar5iv.labs.arxiv.org/html/2308.10848.pdf',\n    'https://arxiv.org/pdf/2404.11584.pdf'\n]\n\ndef download_pdf(url):\n    response = requests.get(url)\n    if response.status_code == 200:\n        filename = url.split('/')[-1]\n        with open(filename, 'wb') as f:\n            f.write(response.content)\n        return f'{filename} downloaded successfully.'\n    else:\n        return f'Failed to download {url}'\n\nresults = [download_pdf(url) for url in urls]\nresults"
     }
   }
 ]

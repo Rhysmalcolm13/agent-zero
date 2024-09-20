@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Management</title>
+    <link rel="stylesheet" href="index.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script type="module" src="template.js"></script>
+</head>
+<body>
+    <div class="container" x-data="templateManagement()">
+        <h1>Template Management</h1>
+        <button @click="openNewTemplateModal()">Add New Template</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>URL</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="template in templates" :key="template.id">
+                    <tr>
+                        <td x-text="template.name"></td>
+                        <td x-text="template.url"></td>
+                        <td>
+                            <button @click="editTemplate(template)">Edit</button>
+                            <button @click="deleteTemplate(template.id)">Delete</button>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+        <div x-show="showModal" class="modal">
+            <div class="modal-content">
+                <h2 x-text="currentTemplate.id ? 'Edit Template' : 'New Template'"></h2>
+                <input type="text" x-model="currentTemplate.name" placeholder="Template Name">
+                <input type="text" x-model="currentTemplate.url" placeholder="URL">
+                <textarea x-model="currentTemplate.navigation_goal" placeholder="Navigation Goal"></textarea>
+                <textarea x-model="currentTemplate.data_extraction_goal" placeholder="Data Extraction Goal"></textarea>
+                <button @click="saveTemplate()">Save</button>
+                <button @click="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

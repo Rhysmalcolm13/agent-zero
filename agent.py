@@ -1,10 +1,11 @@
 import asyncio
 from dataclasses import dataclass, field
 import time, importlib, inspect, os, json
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, List
 import uuid
 from python.helpers import extract_tools, rate_limiter, files, errors
 from python.helpers.print_style import PrintStyle
+from python.helpers.blueprint_manager import BlueprintManager
 from langchain.schema import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -16,9 +17,8 @@ from python.helpers.dirty_json import DirtyJson
 from python.helpers.defer import DeferredTask
 
 class AgentContext:
-
-    _contexts: dict[str, 'AgentContext'] = {}
-    _counter: int = 0
+    contexts: dict[str, 'AgentContext'] = {}
+    counter: int = 0
     
     def __init__(self, config: 'AgentConfig', id:str|None = None, agent0: 'Agent|None' = None):
         # build context
@@ -29,24 +29,22 @@ class AgentContext:
         self.paused = False
         self.streaming_agent: Agent|None = None
         self.process: DeferredTask|None = None
-        AgentContext._counter += 1
-        self.no = AgentContext._counter                     
-
-        self._contexts[self.id] = self
+        AgentContext.counter += 1
+        self.no = AgentContext.counter                     
+        self.contexts[self.id] = self
 
     @staticmethod
     def get(id:str):
-        return AgentContext._contexts.get(id, None)
+        return AgentContext.contexts.get(id, None)
 
     @staticmethod
     def first():
-        if not AgentContext._contexts: return None
-        return list(AgentContext._contexts.values())[0]
-
+        if not AgentContext.contexts: return None
+        return list(AgentContext.contexts.values())[0]
 
     @staticmethod
     def remove(id:str):
-        context = AgentContext._contexts.pop(id, None)
+        context = AgentContext.contexts.pop(id, None)
         if context and context.process: context.process.kill()
         return context
 
@@ -57,7 +55,6 @@ class AgentContext:
         self.streaming_agent = None
         self.paused = False   
 
-    
     def communicate(self, msg: str, broadcast_level: int = 1):
         self.paused=False #unpause if paused
         
@@ -75,7 +72,6 @@ class AgentContext:
             self.process = DeferredTask(self.agent0.message_loop, msg)
 
         return self.process
-            
             
 @dataclass
 class AgentConfig: 
@@ -106,6 +102,7 @@ class AgentConfig:
     code_exec_ssh_port: int = 50022
     code_exec_ssh_user: str = "root"
     code_exec_ssh_pass: str = "toor"
+    blueprint_path: str = "blueprint.json"
     additional: Dict[str, Any] = field(default_factory=dict)
 
 # intervention exception class - skips rest of message loop iteration
@@ -118,8 +115,7 @@ class KillerException(Exception):
 
 class Agent:
     
-    def __init__(self, number:int, config: AgentConfig, context: AgentContext|None = None):
-
+    def __init__(self, number:int, config: AgentConfig, context: AgentContext|None = None, role: str = "orchestrator"):
         # agent config  
         self.config = config       
 
@@ -133,8 +129,19 @@ class Agent:
         self.history = []
         self.last_message = ""
         self.intervention_message = ""
-        self.rate_limiter = rate_limiter.RateLimiter(self.context.log,max_calls=self.config.rate_limit_requests,max_input_tokens=self.config.rate_limit_input_tokens,max_output_tokens=self.config.rate_limit_output_tokens,window_seconds=self.config.rate_limit_seconds)
+        self.rate_limiter = rate_limiter.RateLimiter(
+            self.context.log,
+            max_calls=self.config.rate_limit_requests,
+            max_input_tokens=self.config.rate_limit_input_tokens,
+            max_output_tokens=self.config.rate_limit_output_tokens,
+            window_seconds=self.config.rate_limit_seconds
+        )
         self.data = {} # free data object all the tools can use
+        self.blueprint_manager = BlueprintManager(self.config.blueprint_path)
+        self.subordinate_agents = {}
+        self.cache = {}
+        self.performance_config = self.blueprint_manager.get_performance_optimization_config()
+        self.role = role  # Added role attribute
 
     async def message_loop(self, msg: str):
         try:
@@ -142,46 +149,66 @@ class Agent:
             user_message = self.read_prompt("fw.user_message.md", message=msg)
             await self.append_message(user_message, human=True) # Append the user's input to the history                        
             memories = await self.fetch_memories(True)
-                
-            while True: # let the agent iterate on his thoughts until he stops by using a tool
+            
+            workflow_steps = self.blueprint_manager.get_workflow_steps()
+            for step in workflow_steps:
                 self.context.streaming_agent = self #mark self as current streamer
                 agent_response = ""
 
                 try:
-
                     system = self.read_prompt("agent.system.md", agent_name=self.agent_name) + "\n\n" + self.read_prompt("agent.tools.md")
                     memories = await self.fetch_memories()
-                    if memories: system+= "\n\n"+memories
+                    if memories:
+                        system += "\n\n" + memories
 
-                    prompt = ChatPromptTemplate.from_messages([
-                        SystemMessage(content=system),
-                        MessagesPlaceholder(variable_name="messages") ])
-                    
-                    inputs = {"messages": self.history}
-                    chain = prompt | self.config.chat_model
-
-                    formatted_inputs = prompt.format(messages=self.history)
-                    tokens = int(len(formatted_inputs)/4)     
-                    self.rate_limiter.limit_call_and_input(tokens)
-                    
-                    # output that the agent is starting
-                    PrintStyle(bold=True, font_color="green", padding=True, background_color="white").print(f"{self.agent_name}: Generating:")
-                    log = self.context.log.log(type="agent", heading=f"{self.agent_name}: Generating:")
-                              
-                    async for chunk in chain.astream(inputs):
-                        await self.handle_intervention(agent_response) # wait for intervention and handle it, if paused
-
-                        if isinstance(chunk, str): content = chunk
-                        elif hasattr(chunk, "content"): content = str(chunk.content)
-                        else: content = str(chunk)
+                    if self.blueprint_manager.should_delegate_task(step.get("name", "")):
+                        agent_role = self.blueprint_manager.get_agent_for_task(step.get("name", ""))
+                        if agent_role:
+                            delegated_response = await self.delegate_task(step, agent_role)
+                            agent_response = f"Task '{step.get('name', '')}' delegated to {agent_role}. Response: {delegated_response}"
+                    else:
+                        cache_key = self.generate_cache_key(step, self.history)
+                        cached_response = self.get_from_cache(cache_key)
                         
-                        if content:
-                            printer.stream(content) # output the agent response stream
-                            agent_response += content # concatenate stream into the response
-                            self.log_from_stream(agent_response, log)
+                        if cached_response:
+                            agent_response = cached_response
+                        else:
+                            prompt = ChatPromptTemplate.from_messages([
+                                SystemMessage(content=system),
+                                MessagesPlaceholder(variable_name="messages"),
+                                HumanMessage(content=step.get("instruction", ""))
+                            ])
+                            
+                            inputs = {"messages": self.history}
+                            chain = prompt | self.config.chat_model
 
-                    self.rate_limiter.set_output_tokens(int(len(agent_response)/4)) # rough estimation
-                    
+                            formatted_inputs = prompt.format(messages=self.history)
+                            tokens = int(len(formatted_inputs)/4)     
+                            self.rate_limiter.limit_call_and_input(tokens)
+                            
+                            # output that the agent is starting
+                            PrintStyle(bold=True, font_color="green", padding=True, background_color="white").print(f"{self.agent_name}: Generating step {step.get('name', '')}:")
+                            log = self.context.log.log(type="agent", heading=f"{self.agent_name}: Generating step {step.get('name', '')}:")
+                                      
+                            async for chunk in chain.astream(inputs):
+                                await self.handle_intervention(agent_response) # wait for intervention and handle it, if paused
+
+                                if isinstance(chunk, str):
+                                    content = chunk
+                                elif hasattr(chunk, "content"):
+                                    content = str(chunk.content)
+                                else:
+                                    content = str(chunk)
+                                
+                                if content:
+                                    printer.stream(content) # output the agent response stream
+                                    agent_response += content # concatenate stream into the response
+                                    self.log_from_stream(agent_response, log)
+
+                            self.rate_limiter.set_output_tokens(int(len(agent_response)/4)) # rough estimation
+                            
+                            self.add_to_cache(cache_key, agent_response)
+
                     await self.handle_intervention(agent_response)
 
                     if self.last_message == agent_response: #if assistant_response is the same as last message in history, let him know
@@ -207,14 +234,62 @@ class Agent:
                     self.context.log.log(type="error", content=error_message)
                     raise e # kill the loop
                 except Exception as e: # Forward other errors to the LLM, maybe it can fix them
+                    error_config = self.blueprint_manager.get_error_handling_config()
                     error_message = errors.format_error(e)
-                    msg_response = self.read_prompt("fw.error.md", error=error_message) # error message template
-                    await self.append_message(msg_response, human=True)
-                    PrintStyle(font_color="red", padding=True).print(msg_response)
-                    self.context.log.log(type="error", content=msg_response)
+                    error_type = type(e).__name__
+
+                    if error_type in error_config.get("error_types", {}):
+                        error_action = error_config["error_types"][error_type]["action"]
+                        if error_action == "retry":
+                            max_retries = error_config["error_types"][error_type].get("max_retries", 1)
+                            for _ in range(max_retries):
+                                try:
+                                    # Retry the current step
+                                    continue
+                                except Exception:
+                                    pass
+                        elif error_action == "human_intervention":
+                            msg_response = self.read_prompt("fw.error.md", error=error_message)
+                            await self.append_message(msg_response, human=True)
+                            PrintStyle(font_color="red", padding=True).print(msg_response)
+                            self.context.log.log(type="error", content=msg_response)
+                    else:
+                        msg_response = self.read_prompt("fw.error.md", error=error_message)
+                        await self.append_message(msg_response, human=True)
+                        PrintStyle(font_color="red", padding=True).print(msg_response)
+                        self.context.log.log(type="error", content=msg_response)
                     
         finally:
             self.context.streaming_agent = None # unset current streamer
+
+    async def delegate_task(self, task: Dict[str, Any], agent_role: str) -> str:
+        if agent_role not in self.subordinate_agents:
+            self.subordinate_agents[agent_role] = Agent(
+                len(self.subordinate_agents) + 1, 
+                self.config, 
+                self.context, 
+                role=agent_role  # Assign role to subordinate
+            )
+        
+        subordinate_agent = self.subordinate_agents[agent_role]
+        task_instruction = task.get("instruction", "")
+        return await subordinate_agent.message_loop(task_instruction)
+
+    def generate_cache_key(self, step: Dict[str, Any], history: List[Any]) -> str:
+        # Generate a unique key for caching based on the step and relevant history
+        return f"{step['name']}:{hash(str(history[-5:]))}"  # Use last 5 messages for context
+
+    def get_from_cache(self, key: str) -> Optional[str]:
+        if self.performance_config.get("caching", {}).get("enabled", False):
+            cache_duration = self.performance_config.get("caching", {}).get("cache_duration", 3600)
+            cached_item = self.cache.get(key)
+            if cached_item and time.time() - cached_item['timestamp'] < cache_duration:
+                return cached_item['value']
+        return None
+
+    def add_to_cache(self, key: str, value: str):
+        if self.performance_config.get("caching", {}).get("enabled", False):
+            self.cache[key] = {'value': value, 'timestamp': time.time()}
 
     def read_prompt(self, file:str, **kwargs):
         content = ""
@@ -269,13 +344,18 @@ class Agent:
         async for chunk in chain.astream({}):
             if self.handle_intervention(): break # wait for intervention and handle it, if paused
 
-            if isinstance(chunk, str): content = chunk
-            elif hasattr(chunk, "content"): content = str(chunk.content)
-            else: content = str(chunk)
+            if isinstance(chunk, str):
+                content = chunk
+            elif hasattr(chunk, "content"):
+                content = str(chunk.content)
+            else:
+                content = str(chunk)
 
-            if printer: printer.stream(content)
-            response+=content
-            if logger: logger.update(content=response)
+            if printer:
+                printer.stream(content)
+            response += content
+            if logger:
+                logger.update(content=response)
 
         self.rate_limiter.set_output_tokens(int(len(response)/4))
 
@@ -318,11 +398,13 @@ class Agent:
         return self.history
 
     async def handle_intervention(self, progress:str=""):
-        while self.context.paused: await asyncio.sleep(0.1) # wait if paused
+        while self.context.paused:
+            await asyncio.sleep(0.1) # wait if paused
         if self.intervention_message: # if there is an intervention message, but not yet processed
             msg = self.intervention_message
             self.intervention_message = "" # reset the intervention message
-            if progress.strip(): await self.append_message(progress) # append the response generated so far
+            if progress.strip():
+                await self.append_message(progress) # append the response generated so far
             user_msg = self.read_prompt("fw.intervention.md", user_message=msg) # format the user intervention template
             await self.append_message(user_msg,human=True) # append the intervention message
             raise InterventionException(msg)
@@ -334,6 +416,12 @@ class Agent:
         if tool_request is not None:
             tool_name = tool_request.get("tool_name", "")
             tool_args = tool_request.get("tool_args", {})
+            
+            tool_config = self.blueprint_manager.get_tool_integration(tool_name)
+            if tool_config:
+                # Apply tool-specific configurations from the blueprint
+                tool_args.update(tool_config.get("default_args", {}))
+            
             tool = self.get_tool(tool_name, tool_args, msg)
                 
             await self.handle_intervention() # wait if paused and handle intervention message if needed
@@ -343,7 +431,8 @@ class Agent:
             await self.handle_intervention() # wait if paused and handle intervention message if needed
             await tool.after_execution(response)
             await self.handle_intervention() # wait if paused and handle intervention message if needed
-            if response.break_loop: return response.message
+            if response.break_loop:
+                return response.message
         else:
             msg = self.read_prompt("fw.msg_misformat.md")
             await self.append_message(msg, human=True)
@@ -358,7 +447,7 @@ class Agent:
         tool_class = Unknown
         if files.exists("python/tools",f"{name}.py"): 
             module = importlib.import_module("python.tools." + name)  # Import the module
-            class_list = inspect.getmembers(module, inspect.isclass)  # Get all functions in the module
+            class_list = inspect.getmembers(module, inspect.isclass)  # Get all classes in the module
 
             for cls in class_list:
                 if cls[1] is not Tool and issubclass(cls[1], Tool):
@@ -368,30 +457,33 @@ class Agent:
         return tool_class(agent=self, name=name, args=args, message=message, **kwargs)
 
     async def fetch_memories(self,reset_skip=False):
-        if self.config.auto_memory_count<=0: return ""
-        if reset_skip: self.memory_skip_counter = 0
+        if self.config.auto_memory_count <= 0:
+            return ""
+        if reset_skip:
+            self.memory_skip_counter = 0
 
-        if self.memory_skip_counter > 0:
-            self.memory_skip_counter-=1
+        if hasattr(self, 'memory_skip_counter') and self.memory_skip_counter > 0:
+            self.memory_skip_counter -= 1
             return ""
         else:
             self.memory_skip_counter = self.config.auto_memory_skip
             from python.tools import memory_tool
             messages = self.concat_messages(self.history)
-            memories = memory_tool.search(self,messages)
-            input = {
+            memories = memory_tool.search(self, messages)
+            input_data = {
                 "conversation_history" : messages,
                 "raw_memories": memories
             }
             cleanup_prompt = self.read_prompt("msg.memory_cleanup.md").replace("{", "{{")       
-            clean_memories = await self.send_adhoc_message(cleanup_prompt,json.dumps(input), output_label="Memory injection")
+            clean_memories = await self.send_adhoc_message(cleanup_prompt, json.dumps(input_data), output_label="Memory injection")
             return clean_memories
 
     def log_from_stream(self, stream: str, logItem: Log.LogItem):
         try:
             if len(stream) < 25: return # no reason to try
             response = DirtyJson.parse_string(stream)
-            if isinstance(response, dict): logItem.update(content=stream, kvps=response) #log if result is a dictionary already
+            if isinstance(response, dict):
+                logItem.update(content=stream, kvps=response) #log if result is a dictionary already
         except Exception as e:
             pass
 
