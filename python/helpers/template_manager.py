@@ -1,35 +1,8 @@
+# template_manager.py
+
 import json
 import os
-
-class Template:
-    def __init__(self, id, name, url, navigation_goal, data_extraction_goal, advanced_settings=None):
-        self.id = id
-        self.name = name
-        self.url = url
-        self.navigation_goal = navigation_goal
-        self.data_extraction_goal = data_extraction_goal
-        self.advanced_settings = advanced_settings or {}
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "url": self.url,
-            "navigation_goal": self.navigation_goal,
-            "data_extraction_goal": self.data_extraction_goal,
-            "advanced_settings": self.advanced_settings
-        }
-
-    @classmethod
-    def from_dict(cls, data):
-        return cls(
-            id=data["id"],
-            name=data["name"],
-            url=data["url"],
-            navigation_goal=data["navigation_goal"],
-            data_extraction_goal=data["data_extraction_goal"],
-            advanced_settings=data.get("advanced_settings", {})
-        )
+from python.helpers.template import Template
 
 def get_templates_file_path():
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates.json')
@@ -52,11 +25,7 @@ def load_templates():
 
 def save_templates(templates):
     template_file = get_templates_file_path()
-    templates_data = []
-    for i, template in enumerate(templates, start=1):
-        template_dict = template.to_dict()
-        template_dict['id'] = str(i)
-        templates_data.append(template_dict)
+    templates_data = [template.to_dict() for template in templates]
     
     with open(template_file, 'w') as f:
         json.dump(templates_data, f, indent=2)

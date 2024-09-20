@@ -1,110 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgentV.01</title>
     <link rel="stylesheet" href="index.css">
 
     <script>
-      window.safeCall = function(name, ...args) {
-        if (window[name]) window[name](...args)
-      }
-
+        window.safeCall = function (name, ...args) {
+            if (window[name]) window[name](...args);
+        }
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script type="module" src="index.js"></script>
 
-  </head>
+</head>
 
-  <body>
+<body>
     <div class="container">
-      <div id="left-panel" class="panel">
-        <!-- <h2>Configuration</h2> -->
-
-        <div class="config-section" id="status-section" x-data="{ connected: true }">
-          <h3>AgentV.01 Status</h3>
-          <h4 class="connected" x-show="connected">&#10004; Connected</h4>
-          <h4 class="disconnected" x-show="!connected">&#10008; Disconnected</h4>
-        </div>
-
-        <div class="config-section" x-data="{ showQuickActions: true }">
-          <h3>Quick Actions</h3>
-          <button class="config-button" id="resetChat" @click="resetChat()">Reset chat</button>
-          <button class="config-button" id="newChat" @click="newChat()">New Chat</button>
-        </div>
-
-        <div class="config-section" id="chats-section" x-data="{ contexts: [], selected: '' }" x-show="contexts.length > 0">
-          <h3>Chats</h3>
-          <ul class="config-list">
-            <template x-for="context in contexts">
-              <li>
-                <span :class="{'chat-list-button': true, 'font-bold': context.id === selected}" @click="selected = context.id; selectChat(context.id)">
-                  Chat #<span x-text="context.no"></span>
-                </span>
-                <button class="edit-button" @click="killChat(context.id)">X</button>
-              </li>
-            </template>
-          </ul>
-        </div>
-
-        <div class="config-section" id="templates-section">
-          <h3>Templates</h3>
-          <button class="config-button" id="addTemplateBtn">Add New Template</button>
-          <ul class="template-list"></ul>
-
-          <div class="modal" id="templateModal">
-            <div class="modal-content">
-              <!-- Modal content will be dynamically inserted here -->
+        <div id="left-panel" class="panel">
+            <div class="config-section" id="status-section" x-data="{ connected: true }">
+                <h3>AgentV.01 Status</h3>
+                <h4 class="connected" x-show="connected">&#10004; Connected</h4>
+                <h4 class="disconnected" x-show="!connected">&#10008; Disconnected</h4>
             </div>
-          </div>
-        </div>
 
-        <div class="config-section">
-          <h3>Preferences</h3>
-          <ul class="config-list">
-            <li x-data="{ autoScroll: true }">
-              <span>Autoscroll</span>
-              <label class="switch">
-                <input type="checkbox" x-model="autoScroll" x-effect="window.safeCall('toggleAutoScroll',autoScroll)">
-                <span class="slider"></span>
-              </label>
-            </li>
+            <div class="config-section" x-data="{ showQuickActions: true }">
+                <h3>Quick Actions</h3>
+                <button class="config-button" id="resetChat" @click="resetChat()">Reset chat</button>
+                <button class="config-button" id="newChat" @click="newChat()">New Chat</button>
+            </div>
 
-            <li x-data="{ showThoughts: true }">
-              <span>Show thoughts</span>
-              <label class="switch">
-                <input type="checkbox" x-model="showThoughts" x-effect="window.safeCall('toggleThoughts',showThoughts)">
-                <span class="slider"></span>
-              </label>
-            </li>
+            <div class="config-section" id="chats-section" x-data="{ contexts: [], selected: '' }" x-show="contexts.length > 0">
+                <h3>Chats</h3>
+                <ul class="config-list">
+                    <template x-for="context in contexts">
+                        <li>
+                            <span :class="{'chat-list-button': true, 'font-bold': context.id === selected}" @click="selected = context.id; selectChat(context.id)">
+                                Chat #<span x-text="context.no"></span>
+                            </span>
+                            <button class="edit-button" @click="killChat(context.id)">X</button>
+                        </li>
+                    </template>
+                </ul>
+            </div>
 
-            <li x-data="{ showJson: false }">
-              <span>Show JSON</span>
-              <label class="switch">
-                <input type="checkbox" x-model="showJson" x-effect="window.safeCall('toggleJson',showJson)">
-                <span class="slider"></span>
-              </label>
-            </li>
+            <div class="config-section" id="templates-section">
+                <h3>Templates</h3>
+                <button class="config-button" id="addTemplateBtn" @click="openModal()">Add New Template</button>
+                <ul class="template-list"></ul>
 
-          </ul>
-        </div>
-      </div>
-      <div class="splitter" id="splitter"></div>
-      <div id="right-panel" class="panel">
-        <!--<h2>Chat</h2>-->
-        <div id="chat-history">
+                <div class="modal" id="templateModal">
+                    <div class="modal-content">
+                        <!-- Modal content will be dynamically inserted here -->
+                        <h2>${currentTemplate.id ? 'Edit Template' : 'New Template'}</h2>
 
-        </div>
-        <div id="input-section" x-data="{ paused: false }">
-          <textarea id="chat-input" placeholder="Talk To AgentV.01..." rows="1"></textarea>
-          <button class="chat-button" id="send-button">&#10148;</button>
-          <button class="chat-button pause-button" id="pause-button" @click="pauseAgent(true)" x-show="!paused">&#10074;&#10074;</button>
-          <button class="chat-button pause-button" id="unpause-button" @click="pauseAgent(false)" x-show="paused">&#9654;</button>
-        </div>
-      </div>
-    </div>
-  </body>
+                        <!-- Template Type Selection -->
+                        <select id="templateType" class="dark-theme-input">
+                            <option value="api">API Template</option>
+                            <option value="scraping">Scraping Template</option>
+                            <option value="email">Email Template</option>
+                            <option value="report">Report Template</option>
+                        </select>
+
+                        <!-- Common Fields -->
+                        <input type="text" id="templateName" class="dark-theme-input" placeholder="Template Name" value="${currentTemplate.name}">
+                        
+                        <!-- API Specific Fields -->
+                        <input type="text" id="httpMethod" class="dark-theme-input" placeholder="HTTP Method (e.g., GET)" value="${currentTemplate.http_method}">
+                        <input type="text" id="endpointUrl" class="dark-theme-input" placeholder="Endpoint URL" value="${currentTemplate.endpoint_url}">
+                        
+                        <!-- Headers and Parameters -->
+                        <textarea id="headers" class="dark-theme-input" placeholder="Headers (JSON format)">${JSON.stringify(currentTemplate.headers)}</textarea>
+                        <textarea id="queryParameters" class="dark-theme-input" placeholder="Query Parameters (JSON format)">${JSON.stringify(currentTemplate.query_parameters)}</textarea>
+
+                        <!-- Request Body -->
+                        <textarea id="requestBody" class="dark-theme-input" placeholder="Request Body (JSON format)">${JSON.stringify(currentTemplate.request_body)}</textarea>
+
+                        <!-- Response Mapping and Error Handling -->
+                        <textarea id="responseMapping" class="dark-theme-input" placeholder="Response Mapping (JSON format)">${JSON.stringify(currentTemplate.response_mapping)}</textarea>
+                        <textarea id="errorHandling" class="dark-theme-input" placeholder="Error Handling (JSON format)">${JSON.stringify(currentTemplate.error_handling)}</textarea>
+
+                        <!-- Execution Schedule and Additional Attributes -->
+                        <input type="text" id="executionSchedule" class="dark-theme-input" placeholder="Execution Schedule (Cron format)" value="${currentTemplate.execution_schedule}">
+                        
+                        <!-- New Attributes -->
+                        <input type="text" id="tags" class="dark-theme-input" placeholder="Tags (comma-separated)" value="${currentTemplate.tags.join(',')}">
+                        <input type="text" id="version" class="dark-theme-input" placeholder="Version" value="${currentTemplate.version}">
+                        <input type="text" id="defaultTool" class="dark-theme-input" placeholder="Default Tool" value="${currentTemplate.default_tool}">
+
+                        <!-- Modal Actions -->
+                        <div class='modal-actions'>
+                            <button class='save-button'>Save</button>
+                            <button class='cancel-button'>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences Section -->
+            <div class='config-section'>
+                <h3>Preferences</h3>
+                <ul class='config-list'>
+                    <li x-data="{ autoScroll: true }">
+                        <span>Autoscroll</span>
+                        <label class='switch'>
+                            <input type='checkbox' x-model='autoScroll' x-effect='window.safeCall("toggleAutoScroll", autoScroll)'>
+                            <span class='slider'></span>
+                        </label>
+                    </li>
+
+                    <li x-data="{ showThoughts: true }">
+                        <span>Show thoughts</span>
+                        <label class='switch'>
+                            <input type='checkbox' x-model='showThoughts' x-effect='window.safeCall("toggleThoughts", showThoughts)'>
+                            <span class='slider'></span>
+                        </label>
+                    </li>
+
+                    <li x-data="{ showJson: false }">
+                        <span>Show JSON</span>
+                        <label class='switch'>
+                            <input type='checkbox' x-model='showJson' x-effect='window.safeCall("toggleJson", showJson)'>
+                            <span class='slider'></span>
+                        </label>
+                    </li>
+
+                </ul>
+            </div>
+
+        </div> <!-- End of left-panel -->
+
+        <!-- Right Panel for Chat History -->
+        <div class='splitter' id='splitter'></div>
+        <div id='right-panel' class='panel' x-data="{ activeTab: 'chat' }">
+            <header>
+                <div id="header-container" class="header-container">
+                    <div class="tabs">
+                        <button :class="{ 'tab': true, 'active': activeTab === 'chat' }" @click="activeTab = 'chat'">Chat</button>
+                        <button :class="{ 'tab': true, 'active': activeTab === 'templates' }" @click="activeTab = 'templates'">Templates</button>
+                        <button :class="{ 'tab': true, 'active': activeTab === 'guide' }" @click="activeTab = 'guide'">Guide</button>
+                    </div>
+                </div>
+            </header>
+
+            <div id="chat-tab" class="tab-content" :class="{ 'active': activeTab === 'chat' }">
+                <div id="chat-history"></div>
+
+                <!-- Input Section for Chat -->
+                <div id='input-section' x-data='{ paused: false }'>
+                    <textarea id='chat-input' placeholder='Talk To AgentV.01...' rows='1'></textarea>
+                    <button class='chat-button' id='send-button'>&#10148;</button>
+                    <!-- Pause/Unpause Buttons -->
+                    <button class='chat-button pause-button' id='pause-button' @click='pauseAgent(true)' x-show='!paused'>&#10074;&#10074;</button>
+                    <button class='chat-button pause-button' id='unpause-button' @click='pauseAgent(false)' x-show='paused'>&#9654;</button>
+                </div>
+            </div>
+
+            <div id='templates-tab' class="tab-content" :class="{ 'active': activeTab === 'templates' }">
+                <div id='templates-section'>
+                    <div class="templates-content" style="padding-left: 20px;">
+                        <h1>Templates</h1>
+                        <p>Welcome to the templates for AgentV.01. Here you can find information about how to use templates.</p>
+                        <h2>How to use templates</h2>
+                        <p>To use templates, you need to follow these steps:</p>
+                        <ol>
+                            <li>List templates: Use the "list" action to see all available templates.</li>
+                            <li>Create a new template: Use the "create" action to make a new template, specifying details like name, description, and type.</li>
+                            <li>Use a template: Apply the "use" action with the template ID to utilize an existing template.</li>
+                            <li>Edit a template: Modify an existing template with the "edit" action, providing the template ID and updated information.</li>
+                            <li>Delete a template: Remove unwanted templates using the "delete" action with the template ID.</li>
+                        </ol>
+                        <h3>Important Notes:</h3>
+                        <ul>
+                            <li>Always check for existing templates before creating new ones to avoid duplicates.</li>
+                            <li>Use the "edit" action to update existing templates rather than creating new ones for minor changes.</li>
+                            <li>Templates can be of various types: API, scraping, email, report, or generic.</li>
+                            <li>When creating or editing templates, you can specify details such as:
+                                <ul>
+                                    <li>HTTP method and endpoint URL for API templates</li>
+                                    <li>Navigation and data extraction goals for scraping templates</li>
+                                    <li>Headers, query parameters, and request body for API calls</li>
+                                    <li>Error handling and response mapping</li>
+                                    <li>Execution schedule</li>
+                                    <li>Tags for easy categorization</li>
+                                    <li>Version number for tracking changes</li>
+                                    <li>Default tool to be used with the template</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id='guide-tab' class="tab-content" :class="{ 'active': activeTab === 'guide' }">
+                <div id='guide-section'>
+                    <div class="guide-content" style="padding-left: 20px;">
+                        <h1>Guide</h1>
+                        <p>Welcome to Agent Zero, a personal and organic AI framework designed to be dynamic, transparent, and customizable.</p>
+                        <h2>Key Concepts</h2>
+                        <ol>
+                            <li><strong>General-purpose assistant:</strong> Agent Zero can handle a wide range of tasks, from information gathering to code execution.</li>
+                            <li><strong>Computer as a tool:</strong> It uses the operating system to accomplish tasks, creating and using its own tools as needed.</li>
+                            <li><strong>Multi-agent cooperation:</strong> Agents can create subordinate agents to break down and solve subtasks efficiently.</li>
+                            <li><strong>Customizable and extensible:</strong> Almost everything in the framework can be modified or extended by the user.</li>
+                            <li><strong>Communication-centric:</strong> Effective communication between agents and users is key to accomplishing tasks.</li>
+                        </ol>
+                        <h2>Getting Started</h2>
+                        <ol>
+                            <li>Set up your environment following the instructions in the README.</li>
+                            <li>Run the program using <code>python run_ui.py</code> or <code>python run_cli.py</code> for the command-line interface.</li>
+                            <li>Interact with Agent Zero by providing tasks or questions in the chat interface.</li>
+                            <li>Observe as the agent works on your tasks, potentially creating subordinate agents or using various tools.</li>
+                            <li>Intervene or provide additional guidance as needed during the agent's process.</li>
+                        </ol>
+                        <p><strong>Remember</strong>, Agent Zero's behavior is primarily defined by its system prompt.
+                        <br>You can customize this in the <code>prompts/</code> folder to tailor the agent's capabilities and communication style to your needs.</p>
+                        <h2>Customizing Agent Zero</h2>
+                        <p>You can customize Agent Zero's behavior by editing its system prompt in the <code>prompts/default/agent.system.md</code> file. This file sets the rules and guidelines for how Agent Zero should behave and interact with you.</p>
+                        <p>To modify the system prompt, follow these steps:</p>
+                        <ol>
+                            <li>Open the <code>prompts/default/agent.system.md</code> file in a text editor.</li>
+                            <li>Edit the content of the file to change the rules and guidelines.</li>
+                            <li>Save the file and restart the program to apply the changes.</li>
+                        </ol>
+                        <p>You can also customize the tools that Agent Zero can use by editing the <code>prompts/default/agent.tools.md</code> file. This file defines the available tools and their descriptions, which the agent can use to accomplish tasks.</p>
+                        <p>To modify the tools, follow these steps:</p>
+                        <ol>
+                            <li>Open the <code>prompts/default/agent.tools.md</code> file in a text editor.</li>
+                            <li>Edit the content of the file to change the tools and their descriptions.</li>
+                            <li>Save the file and restart the program to apply the changes.</li>
+                        </ol>
+                        <p>Remember, the system prompt and tools are crucial for defining Agent Zero's behavior and capabilities. Customize them to suit your needs and the tasks you want to accomplish.</p>
+                        <h2>Using Templates</h2>
+                        <p>Templates are a powerful feature in Agent Zero that allow you to reuse and customize common tasks. You can create, edit, and delete templates as needed.</p>
+                        <p>To create a new template, follow these steps:</p>
+                        <ol>
+                            <li>Open the <code>templates/</code> folder in a text editor.</li>
+                            <li>Create a new file with a meaningful name, for example, <code>new_template.json</code>.</li>
+                            <li>Add the necessary details to the template, such as HTTP method, endpoint URL, headers, query parameters, request body, response mapping, error handling, execution schedule, tags, version, and default tool.</li>
+                            <li>Save the file and restart the program to apply the changes.</li>
+                        </ol>
+                        <p>To edit an existing template, follow these steps:</p>
+                        <ol>
+                            <li>Open the <code>templates/</code> folder in a text editor.</li>
+                            <li>Find the template you want to edit, for example, <code>existing_template.json</code>.</li>
+                            <li>Modify the necessary details to update the template.</li>
+                            <li>Save the file and restart the program to apply the changes.</li>
+                        </ol>
+                        <p>To delete a template, follow these steps:</p>
+                        <ol>
+                            <li>Open the <code>templates/</code> folder in a text editor.</li>
+                            <li>Find the template you want to delete, for example, <code>template_to_delete.json</code>.</li>
+                            <li>Delete the file.</li>
+                            <li>Save the changes and restart the program.</li>
+                        </ol>
+                        <p>Remember, templates can be of various types: API, scraping, email, report, or generic. Customize them to suit your needs and the tasks you want to accomplish.</p>
+                        <h2>Interacting with Agent Zero</h2>
+                        <p>You can interact with Agent Zero in several ways:</p>
+                        <ul>
+                            <li>Chat Interface: Use the chat interface to talk to Agent Zero directly.</li>
+                            <li>Templates: Use templates to reuse and customize common tasks.</li>
+                            <li>Tools: Use tools to interact with Agent Zero, such as creating new templates or deleting existing ones.</li>
+                        </ul>
+                        <p>Remember, Agent Zero is designed to be a personal and organic AI framework. Customize it to suit your needs and the tasks you want to accomplish.</p>
+                        <h2>Troubleshooting</h2>
+                        <p>If you encounter any issues, please check the following:</p>
+                        <ul>
+                            <li>Check the console for any error messages.</li>
+                            <li>Ensure that your system prompt and tools are correctly defined.</li>
+                            <li>Check the <code>templates/</code> folder for any issues with the templates.</li>
+                            <li>If the agent is not working as expected, try resetting the chat or providing additional guidance.</li>
+                        </ul>
+                        <p>If you continue to experience issues, please report them to the development team.</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+        </div> <!-- End of right-panel -->
+
+    </div> <!-- End of container -->
+
+</body>
 
 </html>

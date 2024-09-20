@@ -2,55 +2,154 @@
   {
     "id": "1",
     "name": "Code Analysis",
-    "url": "agent-zero/test.py",
-    "navigation_goal": "analyze the mentioned file or folder for various metrics.\n\ncommands:\ncoverage run\ncoverage report -m\nradon cc",
-    "data_extraction_goal": "provide insights and reports based on the analysis in JSON format.",
+    "description": "This is an updated template created for testing purposes with all objects filled in.",
+    "http_method": "POST",
+    "endpoint_url": "https://example.com/test/updated",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer token"
+    },
+    "query_parameters": {
+      "param1": "value1",
+      "param2": "value2"
+    },
+    "request_body": {
+      "key1": "value1",
+      "key2": "value2"
+    },
+    "response_mapping": {
+      "status": "status",
+      "data": "data"
+    },
+    "error_handling": {
+      "retry": 3,
+      "timeout": 5000
+    },
+    "execution_schedule": "every 5 minutes",
+    "url": "https://example.com/test/updated",
+    "navigation_goal": "Navigate to the updated test page",
+    "data_extraction_goal": "Extract updated test data",
     "advanced_settings": {
-      "metrics": [
-        "complexity",
-        "coverage",
-        "style"
+      "timeout": 10000,
+      "follow_redirects": "true",
+      "tags": [
+        "test",
+        "update"
       ],
-      "output_format": "JSON"
-    }
+      "version": "1.1",
+      "default_tool": "http_client",
+      "visibility_options": {
+        "public": "true",
+        "private": "false",
+        "display_order": 1,
+        "created_at": "2023-10-01T00:00:00Z",
+        "modified_at": "2023-10-01T00:00:00Z"
+      }
+    },
+    "tags": [
+      ""
+    ],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "2",
     "name": "Dependency Management",
-    "url": "https://github.com/Rhysmalcolm13/agent-zero",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "https://github.com/Rhysmalcolm13/agent-zero",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
+    "url": "",
     "navigation_goal": "locally clone, then manage and update project dependencies",
     "data_extraction_goal": "report on outdated or vulnerable dependencies",
     "advanced_settings": {
       "auto_update": true,
       "vulnerability_scan": true
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "3",
     "name": "Test Automation",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
     "url": "",
     "navigation_goal": "automate the creation and execution of tests",
     "data_extraction_goal": "generate test reports and coverage statistics",
     "advanced_settings": {
       "test_framework": "any",
       "coverage_threshold": 70
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "4",
     "name": "Documentation Generator",
-    "url": "agent-zero\\agent.py",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "agent-zero\\agent.py",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
+    "url": "",
     "navigation_goal": "automate the generation of project documentation for the mentioned file or folder",
     "data_extraction_goal": "produce up-to-date and comprehensive docs",
     "advanced_settings": {
       "format": "Markdown",
       "include_examples": true
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "5",
     "name": "CI/CD Pipeline",
-    "url": "agent-zero/",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "agent-zero/",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
+    "url": "",
     "navigation_goal": "set up continuous integration and deployment pipelines",
     "data_extraction_goal": "configure automated build and deployment processes",
     "advanced_settings": {
@@ -59,22 +158,54 @@
         "staging",
         "production"
       ]
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "6",
     "name": "Security Audit",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
     "url": "",
     "navigation_goal": "perform security assessments on the codebase",
     "data_extraction_goal": "identify and report potential security issues",
     "advanced_settings": {
       "scan_depth": "deep",
       "report_format": "detailed"
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "7",
     "name": "Performance Monitoring",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
     "url": "",
     "navigation_goal": "monitor and analyze application performance",
     "data_extraction_goal": "provide performance metrics and optimization suggestions",
@@ -84,11 +215,27 @@
         "throughput"
       ],
       "alerting": true
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "8",
     "name": "Code Review Assistant",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
     "url": "",
     "navigation_goal": "assist in the code review process",
     "data_extraction_goal": "highlight potential issues and suggest improvements",
@@ -98,11 +245,27 @@
         "GitHub",
         "GitLab"
       ]
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "9",
     "name": "Environment Setup",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
     "url": "",
     "navigation_goal": "automate the setup of development environments",
     "data_extraction_goal": "ensure consistency and reproducibility across setups",
@@ -112,11 +275,27 @@
         "setup.sh",
         "configure.yml"
       ]
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   },
   {
     "id": "10",
     "name": "Codebase Refactoring",
+    "description": "",
+    "http_method": "GET",
+    "endpoint_url": "",
+    "headers": {},
+    "query_parameters": {},
+    "request_body": {},
+    "response_mapping": {},
+    "error_handling": {},
+    "execution_schedule": "",
     "url": "",
     "navigation_goal": "refactor the codebase for better maintainability",
     "data_extraction_goal": "identify areas for improvement and apply changes",
@@ -125,6 +304,74 @@
         "any"
       ],
       "backup_before": true
-    }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
+  },
+  {
+    "id": "11",
+    "name": "Another Test Template",
+    "description": "This is another test template created with all attributes filled in.",
+    "http_method": "POST",
+    "endpoint_url": "https://example.com/another-test",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer another_token"
+    },
+    "query_parameters": {
+      "param1": "value1",
+      "param2": "value2"
+    },
+    "request_body": {
+      "username": "another_test_user",
+      "password": "another_secure_password",
+      "email": "another_test@example.com",
+      "preferences": {
+        "notifications": "false",
+        "theme": "light"
+      }
+    },
+    "response_mapping": {
+      "status": "status",
+      "data": "data"
+    },
+    "error_handling": {
+      "retry": 2,
+      "timeout": 3000
+    },
+    "execution_schedule": "every 10 minutes",
+    "url": "https://example.com/another-test",
+    "navigation_goal": "Navigate to the another test page",
+    "data_extraction_goal": "Extract another test data",
+    "advanced_settings": {
+      "timeout": 5000,
+      "follow_redirects": "false",
+      "tags": [
+        "another",
+        "test",
+        "full"
+      ],
+      "version": "1.0",
+      "default_tool": "http_client",
+      "visibility_options": {
+        "public": "true",
+        "private": "false",
+        "display_order": 2,
+        "created_at": "2023-10-01T00:00:00Z",
+        "modified_at": "2023-10-01T00:00:00Z"
+      }
+    },
+    "tags": [],
+    "version": "1.0",
+    "default_tool": "",
+    "visibility_options": {},
+    "display_order": 0,
+    "created_at": "None",
+    "modified_at": "None"
   }
 ]

@@ -269,11 +269,28 @@ Specify the operation using the "action" argument.
     "tool_name": "template_tool",
     "tool_args": {
         "action": "create",
+        "type": "api",  // or 'scraping', 'email', 'report', 'generic'
         "name": "New Template",
+        "description": "Description of the template",
+        "http_method": "GET",
+        "endpoint_url": "https://example.com",
+        "headers": {},
+        "query_parameters": {},
+        "request_body": {},
+        "response_mapping": {},
+        "error_handling": {},
+        "execution_schedule": "",
         "url": "https://example.com",
         "navigation_goal": "Navigate to the main page",
         "data_extraction_goal": "Extract article titles",
-        "advanced_settings": {}
+        "advanced_settings": {},
+        "tags": [],
+        "version": "1.0",
+        "default_tool": "",
+        "visibility_options": {},
+        "display_order": 0,
+        "created_at": "None",
+        "modified_at": "None"
     }
 }
 ~~~
@@ -317,10 +334,26 @@ Specify the operation using the "action" argument.
         "action": "edit",
         "template_id": "3",
         "name": "Updated Template Name",
+        "description": "Updated description",
+        "http_method": "POST",
+        "endpoint_url": "https://updated-example.com",
+        "headers": {},
+        "query_parameters": {},
+        "request_body": {},
+        "response_mapping": {},
+        "error_handling": {},
+        "execution_schedule": "",
         "url": "https://updated-example.com",
         "navigation_goal": "Updated navigation goal",
         "data_extraction_goal": "Updated extraction goal",
-        "advanced_settings": {}
+        "advanced_settings": {},
+        "tags": [],
+        "version": "1.0",
+        "default_tool": "",
+        "visibility_options": {},
+        "display_order": 0,
+        "created_at": "None",
+        "modified_at": "None"
     }
 }
 ~~~

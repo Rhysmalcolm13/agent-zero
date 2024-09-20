@@ -12,7 +12,9 @@ from python.helpers.files import get_abs_path
 from python.helpers.print_style import PrintStyle
 from python.helpers.log import Log
 from dotenv import load_dotenv
-from python.helpers.template_manager import Template, load_templates, save_templates, get_next_template_id, delete_template
+from python.helpers.template_manager import load_templates, save_templates, get_next_template_id, delete_template
+from python.helpers.template_factory import TemplateFactory
+from python.helpers.template import Template
 
 #initialize the internal Flask server
 app = Flask("app",static_folder=get_abs_path("./webui"),static_url_path="/")
@@ -247,13 +249,30 @@ async def handle_templates():
         return jsonify({"ok": False, "message": "Invalid template data"}), 400
 
     templates = load_templates()
-    new_template = Template(
+    new_template = TemplateFactory.create_template(
+        template_type=data.get('type', 'api'),
         id=data.get('id') or get_next_template_id(templates),
         name=data['name'],
+        description=data.get('description', ''),
+        http_method=data.get('http_method', 'GET'),
+        endpoint_url=data.get('endpoint_url', ''),
+        headers=data.get('headers', {}),
+        query_parameters=data.get('query_parameters', {}),
+        request_body=data.get('request_body', {}),
+        response_mapping=data.get('response_mapping', {}),
+        error_handling=data.get('error_handling', {}),
+        execution_schedule=data.get('execution_schedule', ''),
         url=data.get('url', ''),
         navigation_goal=data.get('navigation_goal', ''),
         data_extraction_goal=data.get('data_extraction_goal', ''),
-        advanced_settings=data.get('advanced_settings', {})
+        advanced_settings=data.get('advanced_settings', {}),
+        tags=data.get('tags', []),
+        version=data.get('version', '1.0'),
+        default_tool=data.get('default_tool', ''),
+        visibility_options=data.get('visibility_options', {}),
+        display_order=data.get('display_order', 0),
+        created_at=data.get('created_at'),
+        modified_at=data.get('modified_at')
     )
     
     if data.get('id'):
@@ -300,10 +319,26 @@ async def edit_template():
 
     if template:
         template.name = data.get('name', template.name)
+        template.description = data.get('description', template.description)
+        template.http_method = data.get('http_method', template.http_method)
+        template.endpoint_url = data.get('endpoint_url', template.endpoint_url)
+        template.headers = data.get('headers', template.headers)
+        template.query_parameters = data.get('query_parameters', template.query_parameters)
+        template.request_body = data.get('request_body', template.request_body)
+        template.response_mapping = data.get('response_mapping', template.response_mapping)
+        template.error_handling = data.get('error_handling', template.error_handling)
+        template.execution_schedule = data.get('execution_schedule', template.execution_schedule)
         template.url = data.get('url', template.url)
         template.navigation_goal = data.get('navigation_goal', template.navigation_goal)
         template.data_extraction_goal = data.get('data_extraction_goal', template.data_extraction_goal)
         template.advanced_settings = data.get('advanced_settings', template.advanced_settings)
+        template.tags = data.get('tags', template.tags)
+        template.version = data.get('version', template.version)
+        template.default_tool = data.get('default_tool', template.default_tool)
+        template.visibility_options = data.get('visibility_options', template.visibility_options)
+        template.display_order = data.get('display_order', template.display_order)
+        template.created_at = data.get('created_at', template.created_at)
+        template.modified_at = data.get('modified_at', template.modified_at)
 
         save_templates(templates)
         return jsonify({"ok": True, "message": "Template updated successfully", "template": template.to_dict()})
